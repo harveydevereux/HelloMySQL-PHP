@@ -1,0 +1,1 @@
+sudo cp -r * /var/www/html/ && sudo service apache2 restart && firefox localhost
