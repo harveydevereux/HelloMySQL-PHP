@@ -1,7 +1,32 @@
 <html>
  <head>
   <title>PHP Regression</title>
- </head>
+</head>
+<script>
+//TODO
+// Multiple lines per plot
+// ! plot function to modify? 
+	function scatterplotter(container,data,title,xlabel,ylabel,lineColor="#0400FF",markerColor="#0400FF") {
+	 var chart = new CanvasJS.Chart(container, {
+		 title: {
+			 text: title
+		 },
+		 axisY: {
+			 title: ylabel
+		 },
+		 axisX: {
+			 title: xlabel
+		 },
+		 data: [{
+			 type: "line",
+			 dataPoints: data,
+			 lineColor: lineColor,
+			 markerColor: markerColor
+		 }]
+	 });
+	 chart.render();
+	}
+</script>
  <body>
    Samples and Targets:
    <br></br>
@@ -49,45 +74,24 @@
      echo $regression->predict($samples[$i]);
      echo "<br></br>";
    }
-   ?>
+   ?>$regression->predict($samples[$i]);
+
    Now Lets Try Plotting!
    <br></br>
-   <?php
-   $ydata = array(11,3,8,12,5,1,9,13,5,7);
 
-  // Create the graph. These two calls are always required
-  $graph = new Graph(350,250);
-  $graph->SetScale('textlin');
-
-  // Create the linear plot
-  $lineplot=new LinePlot($ydata);
-  $lineplot->SetColor('blue');
-
-  // Add the plot to the graph
-  $graph->Add($lineplot);
-
-  // Display the graph
-  $graph->Stroke();
-    // $x = [];
-    // $y = [];
-    // $pred = [];
-    // for ($i=0;$i<count($samples);$i++){
-    //   array_push($x,$samples[$i][0]);
-    //   array_push($y,$targets[$i]);
-    //   array_push($pred,$regression->predict($samples[$i]));
-    // }
-    // $graph = new Graph(350,250);
-    // $graph->SetScale('textlin');
-    // $data_line=new LinePlot(array(1,2,3,4,5));
-    // $data_line->SetColor('blue');
-    // //$data_line->SetTickLabels($x);
-    // $graph->Add($data_line);
-    //
-    // //$pred_line=new LinePlot($pred);
-    // //$pred_line->SetColor('blue');
-    // //$pred_line->SetTickLabels($x);
-    // //$graph->Add($pred_line);
-    // $graph->Stroke();
-   ?>
+	 <?php
+	 $dataPoints = array();
+	 for ($i = 0; $i < count($targets); $i++){
+		 array_push($dataPoints,array("y"=>$targets[$i],"label"=>$samples[$i][0]));
+	 }
+	 ?>
+	 <script>
+	 		var data = <?php echo json_encode($dataPoints, JSON_NUMERIC_CHECK); ?>;
+		 	window.onload = function() {
+				scatterplotter("chartContainer",data,"PHP Regression","Samples","Targets");
+			}
+		</script>
+	 <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+	 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
  </body>
 </html>
