@@ -2,7 +2,8 @@
  <head>
   <title>PHP Regression</title>
 </head>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js" charset="utf-8"></script>
 <script>
 var pointBackgroundColors = [];
 var pointBorderColors = [];
@@ -52,7 +53,6 @@ function addData(chart, data, label,
                                  backgroundColor='rgba(255,0,0,1.0)',
                                  borderColor='rgb(255, 0,0)',
                                  fill=false) {
-//chart.data.labels.push(label);
     var D = {label: label,
         backgroundColor: backgroundColor,
         borderColor: borderColor,
@@ -65,6 +65,9 @@ chart.update();
 <body>
   <div style="width:75%;">
       <canvas id="myChart"></canvas>
+  </div>
+  <div style="width:75%;">
+      <div id="myPlotlyChart"></div>
   </div>
   <?php
     use Phpml\Clustering\KMeans;
@@ -82,39 +85,49 @@ chart.update();
     $s2 = 1;
     $samples = array();
     $data = array();
+    $datax = array();
+    $datay = array();
     for ($i = 0; $i < $N; $i++){
         array_push($samples,array(nrand($m1,$s1),nrand($m1,$s1)));
         array_push($data,array("x"=>$samples[$i][0],"y"=>$samples[$i][1]));
+        array_push($datax,$samples[$i][0]);
+        array_push($datay,$samples[$i][1]);
         if ($i % 3 == 0){
             array_push($samples,array(nrand($m2,$s2),nrand($m2,$s2)));
             array_push($data,array("x"=>$samples[$i+1][0],"y"=>$samples[$i+1][1]));
+            array_push($datax,$samples[$i+1][0]);
+            array_push($datay,$samples[$i+1][1]);
         }
     }
     $clusterer = new KMeans(2);
     $clusters = $clusterer->cluster($samples);
   ?>
+  Clustering data sampled from two Gaussian distributions:
+  <br></br>
+  <?php
+    echo "N($m1,$s1), N($m2,$s2)";
+  ?>
   <script>
      var data = <?php echo json_encode($data, JSON_NUMERIC_CHECK); ?>;
+     var datax = <?php echo json_encode($datax, JSON_NUMERIC_CHECK); ?>;
+     var datay = <?php echo json_encode($datay, JSON_NUMERIC_CHECK); ?>;
      var clusters = <?php echo json_encode($clusters, JSON_NUMERIC_CHECK); ?>;
      window.onload = function() {
-         var chart = plotter('myChart','scatter', data, 'Data');
-         console.log(data);
-         console.log(clusters);
-         console.log(clusters[0]);
-         console.log(Object.values(chart.data.datasets[0].data[0]))
-         console.log(Object.values(chart.data.datasets[0].data[0]) in clusters[0]);
-         console.log(Object.values(chart.data.datasets[0].data[0]) in clusters[1]);
-         for (i = 0; i < chart.data.datasets[0].data.length; i++) {
-             var current = Object.values(chart.data.datasets[0].data[i]);
-            if (searchForArray(clusters[0],current) != -1)  {
-                pointBackgroundColors.push("#90cd8a");
-                pointBorderColors.push("#90cd8a");
-            } else {
-                pointBackgroundColors.push("#f58368");
-                pointBorderColors.push("#f58368");
-            }
+         console.log(datax);
+         var c1 = [[],[]];
+         var c2 = [[],[]];
+         for (i = 0; i < datax.length; i++) {
+             if (searchForArray(clusters[0],[datax[i],datay[i]]) != -1)  {
+                c1[0].push(datax[i]);
+                c1[1].push(datay[i]);
+             } else {
+                 c2[0].push(datax[i]);
+                 c2[1].push(datay[i]);
+             }
          }
-         chart.update();
+         var D = [{x: c1[0], y: c1[1], mode: 'markers', type: 'scatter', name: "KMeans Cluster 1"},
+                  {x: c2[0], y: c2[1], mode: 'markers', type: 'scatter', name: "KMeans Cluster 2"}];
+         Plotly.newPlot('myPlotlyChart',D);
      }
  </script>
 </body>
