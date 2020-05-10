@@ -54,8 +54,7 @@ echo "${BOLD}Need sudo permission to read $CSV${NORMAL}"
 FIELDS=$(sudo head -1 "$CSV" | sed -e 's/'$DELIM'/` varchar(1024),\n`/g' -e 's/\r//g')
 FIELDS='`'"$FIELDS"'` varchar(8192)'
 
-echo "CREATE DATABASE $DATABASE;
-USE $DATABASE;
+echo "USE $DATABASE;
 DROP TABLE IF EXISTS $TABLE;
 CREATE TABLE $TABLE ($FIELDS);
 

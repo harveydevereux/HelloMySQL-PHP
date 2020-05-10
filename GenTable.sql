@@ -1,7 +1,7 @@
-CREATE DATABASE Youtube;
 USE Youtube;
 DROP TABLE IF EXISTS YoutubeGB;
-CREATE TABLE YoutubeGB (`video_id` varchar(1024),
+CREATE TABLE YoutubeGB (`channel_id` varchar(1024),
+`video_id` varchar(1024),
 `trending_date` varchar(1024),
 `title` varchar(1024),
 `channel_title` varchar(1024),
