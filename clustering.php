@@ -19,53 +19,8 @@ function searchForArray(haystack, needle){
   }
   return -1;
 }
-function plotter(container,type,data,seriesLabel,
-                                 backgroundColor='rgba(255,0,0,1.0)',
-                                 borderColor='rgb(255, 0,0)',
-                                 fill=false) {
- var chart = new Chart(document.getElementById(container).getContext('2d'), {
-     type: type,
-     data: {
-         datasets: [{
-             label: seriesLabel,
-             backgroundColor: backgroundColor,
-             borderColor: borderColor,
-             fill: fill,
-             data: data,
-             pointBackgroundColor: pointBackgroundColors,
-             pointBorderColor: pointBorderColors
-         }]
-     },
-     options: {
-                            scales: {
-                            xAxes: [{
-                                    type: 'linear'
-                            }],
-                            yAxes: [{
-                                    type: 'linear'
-                            }]
-                          }
-                        }
- });
- return chart;
-}
-function addData(chart, data, label,
-                                 backgroundColor='rgba(255,0,0,1.0)',
-                                 borderColor='rgb(255, 0,0)',
-                                 fill=false) {
-    var D = {label: label,
-        backgroundColor: backgroundColor,
-        borderColor: borderColor,
-        fill: fill,
-        data: data};
-chart.data.datasets.push(D);
-chart.update();
-}
 </script>
 <body>
-  <div style="width:75%;">
-      <canvas id="myChart"></canvas>
-  </div>
   <div style="width:75%;">
       <div id="myPlotlyChart"></div>
   </div>
