@@ -5,9 +5,13 @@
 <script src="https://cdn.plot.ly/plotly-latest.min.js" charset="utf-8"></script>
 <body>
   <?php
-  require_once 'dbconfig.php';
+  ini_set('display_errors', 1);
+  ini_set('display_startup_errors', 1);
+  error_reporting(E_ALL);
+  require_once '/home/harvey/bin/dbconfig.php';
   include 'vendor/autoload.php';
   use Phpml\FeatureExtraction\TokenCountVectorizer;
+  use Phpml\FeatureExtraction\TfIdfTransformer;
   use Phpml\Tokenization\WordTokenizer;
   use Phpml\Classification\MLPClassifier;
   use Phpml\NeuralNetwork\ActivationFunction\PReLU;
@@ -39,8 +43,11 @@
   }
   ?>
   <br></br>
-  Let's try a SQL query to find the Numberphile videos (if any!)
-  <br></br>
+  Let's try a SQL query to find the Numberphile videos (if any!). Using PDO
+  we can execute the Query:
+<code>
+    <pre>SELECT * FROM YoutubeGB WHERE channel_title='Numberphile';</pre>
+</code>
 <div id="container">
   <table class="table table-bordered table-condensed">
     <thead>
@@ -90,6 +97,12 @@
             }
         }
     }
+    echo "<br></br>";
+    echo "Looking at all the data the first description is";
+    echo "<br></br>";
+    echo "<hr>";
+    echo $DataSet[4][0];
+    echo "<hr>";
     echo "Next we can tokenise the descriptions and store the token frequencies using:";
 ?>
     <code>
@@ -105,37 +118,44 @@
     // echo $DataSet[4][0];
     // echo "<br></br>";
     // echo $DataSet[4][$N-1];
+    $tokens = $DataSet[4];
     $vectorizer = new TokenCountVectorizer(new WordTokenizer());
     // Build the dictionary.
-    $vectorizer->fit($DataSet[4]);
+    $vectorizer->fit($tokens);
     // Transform the provided text samples into a vectorized list.
-    $vectorizer->transform($DataSet[4]);
-    // $DataSet[4] is now a tokenised array!
+    $vectorizer->transform($tokens);
+    // $tokens is now a tokenised array!
     // e.g [[0=>2, 1=>1, 2=>0],
     //      [0=>5, 1=>0, 2=>1]]
     // for ($i = 0; $i < count($DataSet[4]); $i++){
     //     echo $DataSet[4][$i][0];
     // }
-    echo "Lets see some example tokens!";
+    $tfidf = $tokens;
+    // now get the tfidf stats from tokens
+    $transformer = new TfIdfTransformer($tfidf);
+    $transformer->transform($tfidf);
+
+    echo "Lets see some example tokens for the description above!";
     echo "<br></br>";
     echo "Number of tokens: ";
-    echo count($DataSet[4][0]);
+    echo count($tokens[0]);
     echo "<br></br>";
+    echo "<hr>";
     $zeros = 0;
     echo "[";
-    for ($i = 0; $i < count($DataSet[4][0]); $i++){
+    for ($i = 0; $i < count($tokens[0]); $i++){
         if ($zeros == 0){
             echo $i;
             echo "=>";
-            echo $DataSet[4][0][$i];
+            echo $tokens[0][$i];
             echo ", ";
-            if ($DataSet[4][0][$i] == 0){
+            if ($tokens[0][$i] == 0){
                 $zeros=1;
                 echo "...";
             }
         } else{
-            if ($DataSet[4][0][$i]!=0){
-                echo $DataSet[4][0][$i];
+            if ($tokens[0][$i]!=0){
+                echo $tokens[0][$i];
                 echo ", ";
                 $zeros=0;
             }
@@ -145,6 +165,48 @@
         }
     }
     echo "]";
+    echo "<hr>";
+    echo "Now we will form the TfIdf matrix from all the tokens and descriptions";
 ?>
+<code>
+   <pre>&lt;?php $tfidf = $tokens; ?&gt;</pre>
+</code>
+<code>
+   <pre>&lt;?php $transformer = new TfIdfTransformer($tfidf); ?&gt;</pre>
+</code>
+<code>
+    <pre>&lt;?php $transformer->transform($tfidf); ?&gt;</pre>
+ </code>
+ <?php
+ echo "And lets take a peak at the TfIdf values for the same description as above";
+ $zeros = 0;
+ echo "<br></br>";
+ echo "<hr>";
+ echo "[";
+ for ($i = 0; $i < count($tfidf[0]); $i++){
+     if ($zeros == 0){
+         echo $i;
+         echo "=>";
+         echo $tfidf[0][$i];
+         echo ", ";
+         if ($tfidf[0][$i] == 0){
+             $zeros=1;
+             echo "...";
+         }
+     } else{
+         if ($tfidf[0][$i]!=0){
+             echo $tfidf[0][$i];
+             echo ", ";
+             $zeros=0;
+         }
+     }
+     if ($i % 50 == 0){
+         echo "";
+     }
+ }
+ echo "<hr>";
+ ?>
+ Now we can attempt to train an Artificial Neural Network on the TfIdf data
+ to classify the videos (predict the category tag)
 </body>
 </html>
