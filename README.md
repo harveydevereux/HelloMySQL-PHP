@@ -1,10 +1,9 @@
 # HelloMySQL-PHP
 Example Machine Learning with MySQL via PHP with Apache2 
 
-If you did want to run this yourself you should install PHP-ML using composer as in
-their guide and set up MySQL to look for files in /var/lib/mysql-files/ and
-have apache2 look for html in /var/www/html/ if you want to just run the scripts
-without tinkering. Also store a dbconfig.php
+If you did want to run this yourself without tinkering, you should install PHP-ML using composer as in
+their guide and set up MySQL to look for files in /var/lib/mysql-files/,
+have apache2 look for html in /var/www/html/ and also store a dbconfig.php
 ```php
 <?php
     $host = 'localhost';
@@ -18,6 +17,13 @@ in you home/bin/. Then when ready run
 ./UpdateSQLDataBase.sh && ./deploy
 ```
 deploy will attempt to open localhost in firefox so change that if you want.
+
+Note there's a
+```php
+// because ML...
+<?php ini_set('memory_limit','4096M'); ?>
+```
+in YoutubeSQL.php since the data is so large, even with just using the first 1000 rows!
 
 
 - Using [Youtube trending data from Kaggle](https://www.kaggle.com/datasnaek/youtube-new) 
