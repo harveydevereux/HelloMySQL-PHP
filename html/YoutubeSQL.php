@@ -23,7 +23,7 @@
   // still only do 1000
   // TODO find a better way?
   ini_set('memory_limit','4096M');
-  $N=1000;
+  $N=10;
 
   try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
@@ -34,8 +34,9 @@
     $q_dislikes = "SELECT dislikes FROM YoutubeGB";
     $q_trend = "SELECT trending_date FROM YoutubeGB";
     $q_description = "SELECT description FROM YoutubeGB";
-    $queries = array($q_channel_id,$q_likes,$q_dislikes,$q_trend,$q_description);
-    $cols = ["channel_id","likes","dislikes","trending_date","description"];
+    $q_category = "SELECT category_id FROM YoutubeGB";
+    $queries = array($q_channel_id,$q_likes,$q_dislikes,$q_trend,$q_description,$q_category);
+    $cols = ["channel_id","likes","dislikes","trending_date","description","category_id"];
     $q = $pdo->query($sql);
     $q->setFetchMode(PDO::FETCH_ASSOC);
   } catch (PDOException $pe) {
@@ -83,14 +84,14 @@
     $channel_id = array();
     $trend = array();
     $description = array();
-    $DataSet = array($channel_id,$likes,$dislikes,$trend,$description);
+    $category = array();
+    $DataSet = array($channel_id,$likes,$dislikes,$trend,$description,$category);
     for ($i=0;$i<count($queries);$i++){
         $q = $pdo->query($queries[$i]);
         $q->setFetchMode(PDO::FETCH_ASSOC);
-        // why did the while loop not work here???
         for ($j=0; $j<$N;$j++){
             $r = $q->fetch();
-            if ($i<count($queries)-1){
+            if (in_array($i,[0,1,2])){
                 array_push($DataSet[$i],(int)$r[$cols[$i]]);
             }else{
                 array_push($DataSet[$i],$r[$cols[$i]]);
@@ -205,6 +206,18 @@
      }
  }
  echo "<hr>";
+ $classes = array_unique($DataSet[5]);
+
+ $l1 = new Layer(count($tokens[0]), Neuron::class, new PReLU);
+ $l2 = new Layer(50, Neuron::class, new PReLU);
+ $l3 = new Layer(10, Neuron::class, new PReLU);
+ $l4 = new Layer(count($classes), Neuron::class, new Sigmoid);
+ $mlp = new MLPClassifier(count($tfidf[0]), [$l1, $l2, $l3, $l4], $classes,1,new Sigmoid,0.1);
+
+ $mlp->train(
+    $samples = $tfidf,
+    $targets = $DataSet[5]
+);
  ?>
  Now we can attempt to train an Artificial Neural Network on the TfIdf data
  to classify the videos (predict the category tag)
