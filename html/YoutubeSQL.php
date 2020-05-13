@@ -207,19 +207,6 @@
  }
  echo "<hr>";
  $classes = array_unique($DataSet[5]);
-
- $l1 = new Layer(count($tokens[0]), Neuron::class, new PReLU);
- $l2 = new Layer(50, Neuron::class, new PReLU);
- $l3 = new Layer(10, Neuron::class, new PReLU);
- $l4 = new Layer(count($classes), Neuron::class, new Sigmoid);
- $mlp = new MLPClassifier(count($tfidf[0]), [$l1, $l2, $l3, $l4], $classes,1,new Sigmoid,0.1);
-
- $mlp->train(
-    $samples = $tfidf,
-    $targets = $DataSet[5]
-);
  ?>
- Now we can attempt to train an Artificial Neural Network on the TfIdf data
- to classify the videos (predict the category tag)
 </body>
 </html>
